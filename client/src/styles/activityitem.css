@@ -1,0 +1,201 @@
+/* src/components/RepositoryMonitoring/ActivityItem.css */
+.activity-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  gap: 1rem;
+  padding: 1.25rem;
+  background-color: var(--surface-color);
+  border-radius: var(--card-border-radius);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+  align-items: start;
+}
+
+.activity-item:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.activity-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.activity-item.push .activity-icon {
+  background-color: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+}
+
+.activity-item.pull_request .activity-icon {
+  background-color: rgba(33, 150, 243, 0.2);
+  color: #2196F3;
+}
+
+.activity-item.issue .activity-icon {
+  background-color: rgba(244, 67, 54, 0.2);
+  color: #F44336;
+}
+
+.activity-item.open .activity-icon {
+  background-color: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+}
+
+.activity-item.closed .activity-icon {
+  background-color: rgba(158, 158, 158, 0.2);
+  color: #9E9E9E;
+}
+
+.activity-item.merged .activity-icon {
+  background-color: rgba(156, 39, 176, 0.2);
+  color: #9C27B0;
+}
+
+.activity-content {
+  min-width: 0;
+}
+
+.activity-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.author {
+  font-weight: 600;
+  color: var(--text-color-heading);
+  font-size: 0.95rem;
+}
+
+.action {
+  color: var(--text-color-secondary);
+  font-size: 0.95rem;
+}
+
+.repository {
+  color: var(--primary-color);
+  font-weight: 500;
+  font-size: 0.95rem;
+  background-color: rgba(108, 92, 231, 0.1);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}
+
+.activity-message {
+  color: var(--text-color-primary);
+  margin-bottom: 0.75rem;
+  line-height: 1.4;
+  font-size: 0.95rem;
+}
+
+.activity-meta {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.activity-meta span {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  background-color: var(--card-color);
+  color: var(--text-color-secondary);
+}
+
+.priority.high {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: #F44336;
+}
+
+.priority.medium {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: #FF9800;
+}
+
+.priority.low {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #4CAF50;
+}
+
+.activity-time {
+  text-align: right;
+  flex-shrink: 0;
+  color: var(--text-color-muted);
+  font-size: 0.85rem;
+}
+
+.time {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.date {
+  display: block;
+  opacity: 0.8;
+}
+
+.activity-actions {
+  display: flex;
+  align-items: center;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  color: var(--text-color-muted);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.btn-icon:hover {
+  background-color: var(--hover-surface);
+  color: var(--text-color-primary);
+}
+
+@media (max-width: 768px) {
+  .activity-item {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+  }
+  
+  .activity-time {
+    grid-column: 1;
+    grid-row: 2;
+    text-align: left;
+    margin-top: 0.5rem;
+  }
+  
+  .activity-actions {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  
+  .activity-header {
+    gap: 0.25rem;
+  }
+  
+  .activity-meta {
+    gap: 0.5rem;
+  }
+}
