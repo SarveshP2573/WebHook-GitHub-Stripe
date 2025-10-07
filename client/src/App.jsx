@@ -10,6 +10,7 @@ import CICDAutomation from './pages/CICDAutomation'
 import Dashboard from './pages/Dashboard'
 import Home from './pages/Home'
 import RepositoryMonitoring from './pages/RepositoryMonitoring'
+import SecurityScanning from './pages/SecurityScanning'
 import Webhooks from './pages/Webhooks'
 import PrivateRoute from './PrivateRoute'
 
@@ -46,6 +47,7 @@ function App () {
         />
         <Route path='/github/repository' element={<RepositoryMonitoring />} />
         <Route path='/github/cicd' element={<CICDAutomation />} />
+        <Route path='/github/security' element={<SecurityScanning />} />
       </Routes>
     </BrowserRouter>
   )

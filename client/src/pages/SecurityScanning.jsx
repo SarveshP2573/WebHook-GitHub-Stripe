@@ -1,211 +1,78 @@
-// src/pages/SecurityScanning.js
 import React, { useState, useEffect } from 'react';
-import ScanResultCard from '../components/SecurityScanning/ScanResultCard';
-import VulnerabilityChart from '../components/SecurityScanning/VulnerabilityChart';
-import ScanFilters from '../components/SecurityScanning/ScanFilters';
-import './SecurityScanning.css';
+import axios from 'axios';
+import '../styles/securityscanning.css';
+
+const api = axios.create({
+  baseURL: 'http://localhost:3000/api'
+});
+
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
 const SecurityScanning = () => {
-  const [scanResults, setScanResults] = useState([]);
-  const [stats, setStats] = useState({});
+  const [analyses, setAnalyses] = useState([]);
+  const [overview, setOverview] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({
-    severity: 'all',
-    type: 'all',
-    repository: 'all',
-    dateRange: '7d'
-  });
+  const [selectedAnalysis, setSelectedAnalysis] = useState(null);
+  const [filter, setFilter] = useState('all');
 
-  // Mock data - Replace with actual API calls
   useEffect(() => {
-    const fetchScanResults = async () => {
+    fetchSecurityData();
+  }, []);
+
+  const fetchSecurityData = async () => {
+    try {
       setLoading(true);
-      try {
-        // TODO: Replace with actual API call
-        // const response = await securityAPI.getScanResults(filters);
-        
-        // Mock data
-        const mockScanResults = [
-          {
-            id: 1,
-            repository: 'webhook-manager',
-            branch: 'main',
-            commitHash: 'a1b2c3d4e5',
-            timestamp: '2023-10-15T14:30:00Z',
-            status: 'completed',
-            issues: 12,
-            warnings: 8,
-            critical: 2,
-            high: 4,
-            medium: 3,
-            low: 3,
-            scanDuration: '2m 34s',
-            vulnerabilities: [
-              {
-                id: 'CVE-2023-12345',
-                type: 'security',
-                severity: 'critical',
-                title: 'SQL Injection Vulnerability',
-                description: 'User input not properly sanitized in database queries',
-                file: 'src/api/database.js',
-                line: 42,
-                codeSnippet: 'const query = `SELECT * FROM users WHERE id = ${userId}`;',
-                recommendation: 'Use parameterized queries or prepared statements',
-                owaspCategory: 'A1: Injection',
-                cwe: 'CWE-89'
-              },
-              {
-                id: 'CVE-2023-12346',
-                type: 'security',
-                severity: 'high',
-                title: 'Cross-Site Scripting (XSS)',
-                description: 'User input not properly escaped in HTML output',
-                file: 'src/components/UserProfile.js',
-                line: 78,
-                codeSnippet: 'document.getElementById("profile").innerHTML = userInput;',
-                recommendation: 'Use proper escaping or a templating library',
-                owaspCategory: 'A7: Cross-Site Scripting',
-                cwe: 'CWE-79'
-              },
-              {
-                id: 'WARN-2023-1001',
-                type: 'performance',
-                severity: 'medium',
-                title: 'Inefficient Database Query',
-                description: 'Query fetching entire table when only specific columns needed',
-                file: 'src/services/userService.js',
-                line: 15,
-                codeSnippet: 'const users = await User.findAll();',
-                recommendation: 'Use selective column fetching with attributes option',
-                impact: 'High memory usage on large datasets'
-              },
-              {
-                id: 'WARN-2023-1002',
-                type: 'code-quality',
-                severity: 'low',
-                title: 'Unused Variable',
-                description: 'Variable declared but never used',
-                file: 'src/utils/helpers.js',
-                line: 23,
-                codeSnippet: 'const unusedVariable = "this is never used";',
-                recommendation: 'Remove unused variables to clean up code',
-                impact: 'Minor code clutter'
-              }
-            ]
-          },
-          {
-            id: 2,
-            repository: 'api-gateway',
-            branch: 'develop',
-            commitHash: 'f6g7h8i9j0',
-            timestamp: '2023-10-14T11:20:00Z',
-            status: 'completed',
-            issues: 8,
-            warnings: 5,
-            critical: 1,
-            high: 2,
-            medium: 3,
-            low: 2,
-            scanDuration: '1m 45s',
-            vulnerabilities: [
-              {
-                id: 'CVE-2023-12347',
-                type: 'security',
-                severity: 'high',
-                title: 'Insecure Randomness',
-                description: 'Math.random() used for security-sensitive purpose',
-                file: 'src/auth/token.js',
-                line: 56,
-                codeSnippet: 'const token = Math.random().toString(36).substring(2);',
-                recommendation: 'Use crypto.getRandomValues() for cryptographic randomness',
-                owaspCategory: 'A2: Broken Authentication',
-                cwe: 'CWE-338'
-              },
-              {
-                id: 'WARN-2023-1003',
-                type: 'performance',
-                severity: 'medium',
-                title: 'Memory Leak Potential',
-                description: 'Event listeners not properly cleaned up',
-                file: 'src/server/socket.js',
-                line: 89,
-                codeSnippet: 'socket.on("message", handleMessage);',
-                recommendation: 'Add removeListener in cleanup phase',
-                impact: 'Potential memory leak over time'
-              }
-            ]
-          },
-          {
-            id: 3,
-            repository: 'mobile-app',
-            branch: 'feature/auth',
-            commitHash: 'k1l2m3n4o5',
-            timestamp: '2023-10-13T16:45:00Z',
-            status: 'failed',
-            issues: 0,
-            warnings: 0,
-            critical: 0,
-            high: 0,
-            medium: 0,
-            low: 0,
-            scanDuration: '0m 23s',
-            error: 'Dependency resolution failed: vulnerable package detected',
-            vulnerabilities: []
-          }
-        ];
-
-        const mockStats = {
-          totalScans: 42,
-          completedScans: 38,
-          failedScans: 4,
-          totalIssues: 124,
-          criticalIssues: 12,
-          highIssues: 28,
-          mediumIssues: 45,
-          lowIssues: 39,
-          averageScanTime: '1m 52s',
-          repositoriesScanned: 8
-        };
-
-        setScanResults(mockScanResults);
-        setStats(mockStats);
-      } catch (error) {
-        console.error('Error fetching scan results:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchScanResults();
-  }, [filters]);
-
-  const handleFilterChange = (newFilters) => {
-    setFilters(newFilters);
+      const [analysesResponse, overviewResponse] = await Promise.all([
+        api.get('/github-security/analyses'),
+        api.get('/github-security/overview')
+      ]);
+      
+      setAnalyses(analysesResponse.data.analyses);
+      setOverview(overviewResponse.data);
+    } catch (error) {
+      console.error('Error fetching security data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const runScan = async (repository, branch) => {
-    // TODO: Implement actual scan execution
-    alert(`Starting security scan for ${repository}/${branch}`);
+  const getScoreColor = (score) => {
+    if (score >= 80) return '#10B981'; // Green
+    if (score >= 60) return '#F59E0B'; // Yellow
+    return '#EF4444'; // Red
   };
 
-  const dismissIssue = async (scanId, vulnerabilityId) => {
-    // TODO: Implement issue dismissal
-    setScanResults(scanResults.map(scan => 
-      scan.id === scanId 
-        ? {
-            ...scan,
-            vulnerabilities: scan.vulnerabilities.filter(v => v.id !== vulnerabilityId)
-          }
-        : scan
-    ));
+  const getSeverityColor = (severity) => {
+    switch (severity.toLowerCase()) {
+      case 'critical': return '#EF4444';
+      case 'high': return '#F59E0B';
+      case 'medium': return '#3B82F6';
+      case 'low': return '#10B981';
+      default: return '#6B7280';
+    }
   };
+
+  const filteredAnalyses = analyses.filter(analysis => {
+    if (filter === 'all') return true;
+    const score = analysis.filesAnalyzed[0]?.analysis.overall_score || 0;
+    if (filter === 'high' && score >= 80) return true;
+    if (filter === 'medium' && score >= 60 && score < 80) return true;
+    if (filter === 'low' && score < 60) return true;
+    return false;
+  });
 
   if (loading) {
     return (
       <div className="security-scanning-page">
         <div className="loading-container">
           <div className="spinner"></div>
-          <p>Loading security scan results...</p>
+          <p>Loading security analyses...</p>
         </div>
       </div>
     );
@@ -213,121 +80,244 @@ const SecurityScanning = () => {
 
   return (
     <div className="security-scanning-page">
-      <div className="scanning-header">
+      {/* Header Section */}
+      <div className="security-header">
         <div className="header-content">
           <h1>Security Scanning</h1>
-          <p>Identify and fix vulnerabilities, warnings, and code improvements</p>
+          <p>AI-powered code security analysis powered by Gemini Flash 2.0</p>
         </div>
-        <button className="btn-primary">
-          <i className="fas fa-shield-alt"></i>
-          Run Full Scan
+        <button className="btn-primary" onClick={fetchSecurityData}>
+          <i className="fas fa-sync-alt"></i>
+          Refresh
         </button>
       </div>
 
-      <div className="scanning-stats">
-        <div className="stat-card">
-          <div className="stat-icon total-scans">
-            <i className="fas fa-search"></i>
+      {/* Overview Cards */}
+      {overview && (
+        <div className="overview-cards">
+          <div className="overview-card">
+            <div className="card-icon">
+              <i className="fas fa-shield-alt"></i>
+            </div>
+            <div className="card-content">
+              <h3>{overview.totalAnalyses}</h3>
+              <p>Total Analyses</p>
+            </div>
           </div>
-          <div className="stat-info">
-            <h3>{stats.totalScans}</h3>
-            <p>Total Scans</p>
+          
+          <div className="overview-card">
+            <div className="card-icon">
+              <i className="fas fa-bug"></i>
+            </div>
+            <div className="card-content">
+              <h3>{overview.totalSecurityIssues}</h3>
+              <p>Security Issues Found</p>
+            </div>
           </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon total-issues">
-            <i className="fas fa-bug"></i>
-          </div>
-          <div className="stat-info">
-            <h3>{stats.totalIssues}</h3>
-            <p>Total Issues</p>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon critical-issues">
-            <i className="fas fa-exclamation-triangle"></i>
-          </div>
-          <div className="stat-info">
-            <h3>{stats.criticalIssues}</h3>
-            <p>Critical Issues</p>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon repos-scanned">
-            <i className="fas fa-book"></i>
-          </div>
-          <div className="stat-info">
-            <h3>{stats.repositoriesScanned}</h3>
-            <p>Repositories Scanned</p>
+          
+          <div className="overview-card">
+            <div className="card-icon">
+              <i className="fas fa-chart-line"></i>
+            </div>
+            <div className="card-content">
+              <h3 style={{ color: getScoreColor(overview.averageScore) }}>
+                {overview.averageScore}
+              </h3>
+              <p>Average Security Score</p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      <div className="vulnerability-overview">
-        <div className="overview-chart">
-          <h3>Vulnerability Distribution</h3>
-          <VulnerabilityChart stats={stats} />
-        </div>
-        <div className="overview-summary">
-          <h3>Scan Summary</h3>
-          <div className="summary-stats">
-            <div className="summary-item">
-              <span className="label">Completed Scans:</span>
-              <span className="value">{stats.completedScans}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Failed Scans:</span>
-              <span className="value error">{stats.failedScans}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Average Scan Time:</span>
-              <span className="value">{stats.averageScanTime}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">High Severity:</span>
-              <span className="value warning">{stats.highIssues}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Medium Severity:</span>
-              <span className="value info">{stats.mediumIssues}</span>
-            </div>
-            <div className="summary-item">
-              <span className="label">Low Severity:</span>
-              <span className="value success">{stats.lowIssues}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="filters-section">
-        <ScanFilters filters={filters} onFilterChange={handleFilterChange} />
-      </div>
-
-      <div className="scan-results">
-        <h2>Recent Scan Results</h2>
-        <div className="results-list">
-          {scanResults.map(scan => (
-            <ScanResultCard
-              key={scan.id}
-              scan={scan}
-              onRunScan={() => runScan(scan.repository, scan.branch)}
-              onDismissIssue={dismissIssue}
-            />
-          ))}
-        </div>
-      </div>
-
-      {scanResults.length === 0 && (
-        <div className="empty-state">
-          <div className="empty-icon">
-            <i className="fas fa-shield-alt"></i>
-          </div>
-          <h3>No scan results found</h3>
-          <p>Run your first security scan to identify vulnerabilities and improvements</p>
-          <button className="btn-primary">
-            <i className="fas fa-play"></i>
-            Run Initial Scan
+      {/* Filter Section */}
+      <div className="filter-section">
+        <div className="filter-buttons">
+          <button 
+            className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
+            onClick={() => setFilter('all')}
+          >
+            All Analyses
           </button>
+          <button 
+            className={`filter-btn ${filter === 'high' ? 'active' : ''}`}
+            onClick={() => setFilter('high')}
+          >
+            <i className="fas fa-shield" style={{ color: '#10B981' }}></i>
+            High Score (80+)
+          </button>
+          <button 
+            className={`filter-btn ${filter === 'medium' ? 'active' : ''}`}
+            onClick={() => setFilter('medium')}
+          >
+            <i className="fas fa-shield" style={{ color: '#F59E0B' }}></i>
+            Medium Score (60-79)
+          </button>
+          <button 
+            className={`filter-btn ${filter === 'low' ? 'active' : ''}`}
+            onClick={() => setFilter('low')}
+          >
+            <i className="fas fa-shield" style={{ color: '#EF4444' }}></i>
+            Low Score (60-0)
+          </button>
+        </div>
+      </div>
+
+      {/* Analyses List */}
+      <div className="analyses-section">
+        <h2>Recent Security Analyses</h2>
+        
+        {filteredAnalyses.length === 0 ? (
+          <div className="empty-state">
+            <i className="fas fa-search"></i>
+            <h3>No analyses found</h3>
+            <p>Push some code to your GitHub repositories to see security analyses here.</p>
+          </div>
+        ) : (
+          <div className="analyses-grid">
+            {filteredAnalyses.map((analysis) => (
+              <div 
+                key={analysis._id} 
+                className="analysis-card"
+                onClick={() => setSelectedAnalysis(analysis)}
+              >
+                <div className="analysis-header">
+                  <div className="repo-info">
+                    <h4>{analysis.repository}</h4>
+                    <p>{analysis.commitMessage}</p>
+                  </div>
+                  <div 
+                    className="score-badge"
+                    style={{ backgroundColor: getScoreColor(analysis.filesAnalyzed[0]?.analysis.overall_score || 0) }}
+                  >
+                    {analysis.filesAnalyzed[0]?.analysis.overall_score || 0}
+                  </div>
+                </div>
+                
+                <div className="analysis-meta">
+                  <span className="meta-item">
+                    <i className="fas fa-code-branch"></i>
+                    {analysis.branch}
+                  </span>
+                  <span className="meta-item">
+                    <i className="fas fa-user"></i>
+                    {analysis.author}
+                  </span>
+                  <span className="meta-item">
+                    <i className="fas fa-clock"></i>
+                    {new Date(analysis.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
+
+                <div className="analysis-preview">
+                  <div className="issue-count">
+                    <i className="fas fa-exclamation-triangle" style={{ color: '#EF4444' }}></i>
+                    {analysis.filesAnalyzed[0]?.analysis.security_issues.length || 0} security issues
+                  </div>
+                  <div className="summary">
+                    {analysis.filesAnalyzed[0]?.analysis.summary || 'No analysis summary available'}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Analysis Detail Modal */}
+      {selectedAnalysis && (
+        <div className="modal-overlay" onClick={() => setSelectedAnalysis(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Security Analysis Details</h2>
+              <button 
+                className="close-btn"
+                onClick={() => setSelectedAnalysis(null)}
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            
+            <div className="modal-body">
+              <div className="analysis-detail-header">
+                <div>
+                  <h3>{selectedAnalysis.repository}</h3>
+                  <p>{selectedAnalysis.commitMessage}</p>
+                </div>
+                <div 
+                  className="detail-score"
+                  style={{ color: getScoreColor(selectedAnalysis.filesAnalyzed[0]?.analysis.overall_score || 0) }}
+                >
+                  {selectedAnalysis.filesAnalyzed[0]?.analysis.overall_score || 0}
+                </div>
+              </div>
+
+              {selectedAnalysis.filesAnalyzed.map((file, index) => (
+                <div key={index} className="file-analysis">
+                  <h4>
+                    <i className="fas fa-file-code"></i>
+                    {file.filename} ({file.language})
+                  </h4>
+                  
+                  {/* Security Issues */}
+                  {file.analysis.security_issues.length > 0 && (
+                    <div className="issue-section">
+                      <h5>
+                        <i className="fas fa-shield-alt" style={{ color: '#EF4444' }}></i>
+                        Security Issues ({file.analysis.security_issues.length})
+                      </h5>
+                      <div className="issues-list">
+                        {file.analysis.security_issues.map((issue, i) => (
+                          <div key={i} className="issue-item security">
+                            {issue}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Code Quality Issues */}
+                  {file.analysis.code_quality.length > 0 && (
+                    <div className="issue-section">
+                      <h5>
+                        <i className="fas fa-code" style={{ color: '#F59E0B' }}></i>
+                        Code Quality ({file.analysis.code_quality.length})
+                      </h5>
+                      <div className="issues-list">
+                        {file.analysis.code_quality.map((issue, i) => (
+                          <div key={i} className="issue-item quality">
+                            {issue}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Improvements */}
+                  {file.analysis.improvements.length > 0 && (
+                    <div className="issue-section">
+                      <h5>
+                        <i className="fas fa-lightbulb" style={{ color: '#10B981' }}></i>
+                        Suggested Improvements ({file.analysis.improvements.length})
+                      </h5>
+                      <div className="issues-list">
+                        {file.analysis.improvements.map((improvement, i) => (
+                          <div key={i} className="issue-item improvement">
+                            {improvement}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Summary */}
+                  <div className="analysis-summary">
+                    <h5>Summary</h5>
+                    <p>{file.analysis.summary}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </div>

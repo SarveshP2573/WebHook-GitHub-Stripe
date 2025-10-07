@@ -7,7 +7,7 @@ const RepositoryCard = ({ repository }) => {
   }
 
   return (
-    <div className='repository-card'>
+    <div style={{ background: 'black' }} className='repository-card'>
       <div className='repo-header'>
         <div className='repo-icon'>
           <i className='fas fa-book'></i>

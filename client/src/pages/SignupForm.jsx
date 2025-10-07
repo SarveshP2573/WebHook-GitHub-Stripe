@@ -7,7 +7,7 @@ import '../styles/authform.css'
 
 const SignupForm = () => {
   const [formData, setFormData] = useState({
-    name: '', // ✅ changed from username → name
+    name: '',
     email: '',
     password: '',
     confirmPassword: '',

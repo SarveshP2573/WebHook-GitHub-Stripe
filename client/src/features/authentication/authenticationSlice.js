@@ -20,6 +20,7 @@ export const login = createAsyncThunk('auth/login', async (body, thunkApi) => {
 
     return await response.json()
   } catch (err) {
+    console.log(err)
     return thunkApi.rejectWithValue(err.message)
   }
 })
