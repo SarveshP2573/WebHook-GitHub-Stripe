@@ -8,7 +8,7 @@ import StatisticsPanel from '../features/github/components/StatisticspANEL.JSX'
 import '../styles/RepositoryMonitoring.css'
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000/api'
+  baseURL: 'http://localhost:5000/api'
 })
 
 api.interceptors.request.use(config => {

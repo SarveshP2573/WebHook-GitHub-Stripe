@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react'
 import '../styles/webhooks.css'
 
 const api = axios.create({
-  baseURL: 'http://localhost:3000/api'
+  baseURL: 'http://localhost:5000/api',
+  withCredentials: true // needed if you use cookies
 })
+
 
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('token')

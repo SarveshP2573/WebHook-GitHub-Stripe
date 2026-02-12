@@ -1,61 +1,31 @@
 const ngrok = require('ngrok')
 
 class NgrokService {
-  constructor () {
-    this.ngrokUrl = null
+  constructor() {
+    this.ngrokUrl = process.env.NGROK_PUBLIC_URL || 'http://localhost:5000'
+    this.isConnected = !!process.env.NGROK_PUBLIC_URL
+  }
+
+  async startNgrok(port = process.env.PORT || 5000) {
+    if (this.isConnected) {
+      console.log(`✅ Using existing Ngrok URL from CLI: ${this.ngrokUrl}`)
+    } else {
+      console.log('🔄 No Ngrok URL provided, falling back to local URL')
+    }
+    return this.ngrokUrl
+  }
+
+  async stopNgrok() {
+    console.log('⚠️ Stop called, but Ngrok is managed externally via CLI')
     this.isConnected = false
-    this.fallbackUrl = 'http://localhost:3000'
+    this.ngrokUrl = 'http://localhost:5000'
   }
 
-  async startNgrok (port = 5000) {
-    try {
-      console.log('🌐 Starting ngrok tunnel with authentication...')
-
-      // Use your auth token directly
-      this.ngrokUrl = await ngrok.connect({
-        addr: port,
-        proto: 'http',
-        authtoken: '2yDJLM3R56m4E4atRq3xOA8Tm4W_7pKLWQvvGkL537ZPqsBs9',
-        region: 'in'
-      })
-
-      console.log(`✅ Authenticated ngrok tunnel created: ${this.ngrokUrl}`)
-      this.isConnected = true
-
-      // Set up cleanup
-      process.on('SIGINT', async () => {
-        console.log('🛑 Closing ngrok tunnel...')
-        await this.stopNgrok()
-        process.exit(0)
-      })
-
-      return this.ngrokUrl
-    } catch (error) {
-      console.error('❌ Ngrok failed:', error.message)
-      console.log('🔄 Falling back to local URL for webhooks')
-      this.isConnected = false
-      this.ngrokUrl = this.fallbackUrl
-      return this.fallbackUrl
-    }
+  getNgrokUrl() {
+    return this.ngrokUrl
   }
 
-  async stopNgrok () {
-    try {
-      await ngrok.disconnect()
-      await ngrok.kill()
-      this.isConnected = false
-      this.ngrokUrl = null
-      console.log('✅ Ngrok tunnel stopped')
-    } catch (error) {
-      console.error('Error stopping ngrok:', error)
-    }
-  }
-
-  async getNgrokUrl () {
-    return this.isConnected ? this.ngrokUrl : this.fallbackUrl
-  }
-
-  getStatus () {
+  getStatus() {
     return {
       isConnected: this.isConnected,
       ngrokUrl: this.ngrokUrl
