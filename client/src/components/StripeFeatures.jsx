@@ -1,38 +1,77 @@
-import React from 'react';
+import { useState } from 'react'
+import PaymentTracking from '../pages/PaymentTracking'
+import Notifications from '../pages/Notifications'
+import InvoiceGenerator from '../pages/InvoiceGenerator'
+import StripeLogs from '../pages/StripeLogs'
 
-const StripeFeatures = () => {
+const StripeServices = ({ onBack }) => {
+  const [activeFeature, setActiveFeature] = useState(null)
+
+  const features = [
+    {
+      id: 'payments',
+      title: 'Payment Success Tracking',
+      icon: 'fas fa-credit-card',
+      description: 'Monitor successful and failed payments'
+    },
+    {
+      id: 'notifications',
+      title: 'Custom Notifications',
+      icon: 'fas fa-bell',
+      description: 'Create alerts for payment events'
+    },
+    {
+      id: 'invoice',
+      title: 'Invoice Generator',
+      icon: 'fas fa-file-invoice',
+      description: 'Generate invoices automatically'
+    },
+    {
+      id: 'logs',
+      title: 'Comprehensive Logging',
+      icon: 'fas fa-clipboard-list',
+      description: 'Search and filter transaction logs'
+    }
+  ]
+
+  if (activeFeature !== null) {
+    switch (activeFeature) {
+      case 'payments':
+        return <PaymentTracking onBack={() => setActiveFeature(null)} />
+      case 'notifications':
+        return <Notifications onBack={() => setActiveFeature(null)} />
+      case 'invoice':
+        return <InvoiceGenerator onBack={() => setActiveFeature(null)} />
+      case 'logs':
+        return <StripeLogs onBack={() => setActiveFeature(null)} />
+      default:
+        return null
+    }
+  }
+
   return (
-    <div className="feature-cards">
-      <div className="feature-card">
-        <div className="card-icon">
-          <i className="fas fa-credit-card"></i>
-        </div>
-        <h3>Payment Success Tracking</h3>
-        <p>Monitor successful payments and failed transactions in real-time with detailed webhook logs.</p>
-      </div>
-      <div className="feature-card">
-        <div className="card-icon">
-          <i className="fas fa-bell"></i>
-        </div>
-        <h3>Custom Notifications</h3>
-        <p>Create tailored alerts for different payment events based on your business needs.</p>
-      </div>
-      <div className="feature-card">
-        <div className="card-icon">
-          <i className="fas fa-file-invoice"></i>
-        </div>
-        <h3>Invoice Generator</h3>
-        <p>Automatically generate and send invoices when payments are processed successfully.</p>
-      </div>
-      <div className="feature-card">
-        <div className="card-icon">
-          <i className="fas fa-clipboard-list"></i>
-        </div>
-        <h3>Comprehensive Logging</h3>
-        <p>Maintain complete records of all transactions with searchable, filterable logs.</p>
+    <div className='stripe-services'>
+      <button onClick={onBack}>⬅ Back to Dashboard</button>
+
+      <h2>Stripe Services</h2>
+
+      <div className='feature-cards'>
+        {features.map(feature => (
+          <div
+            key={feature.id}
+            className='feature-card'
+            onClick={() => setActiveFeature(feature.id)}
+          >
+            <div className='card-icon'>
+              <i className={feature.icon}></i>
+            </div>
+            <h3>{feature.title}</h3>
+            <p>{feature.description}</p>
+          </div>
+        ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default StripeFeatures;
+export default StripeServices

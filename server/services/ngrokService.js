@@ -2,8 +2,9 @@ const ngrok = require('ngrok')
 
 class NgrokService {
   constructor() {
-    this.ngrokUrl = process.env.NGROK_PUBLIC_URL || 'http://localhost:5000'
-    this.isConnected = !!process.env.NGROK_PUBLIC_URL
+    this.ngrokUrl = process.env.NGROK_URL || 'http://localhost:5000'
+this.isConnected = !!process.env.NGROK_URL
+
   }
 
   async startNgrok(port = process.env.PORT || 5000) {
