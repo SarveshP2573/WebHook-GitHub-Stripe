@@ -1,1 +1,2 @@
 # FinalYP
+GitHub and Stripe
